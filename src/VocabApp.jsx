@@ -704,7 +704,12 @@ function DeckDetail({ deck, cards, onBack, addCard, updateCard, deleteCard }) {
       updateCard(editingId, form);
       setEditingId(null);
     } else {
-      addCard(deck.id, { ...form, youglishUrl });
+     addCard(deck.id, {
+  ...form,
+  youglishUrl: form.word.trim()
+    ? `https://youglish.com/pronounce/${encodeURIComponent(form.word.trim())}/french`
+    : "",
+});
     }
     setForm(emptyForm);
     setShowAddForm(false);
