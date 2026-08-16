@@ -217,6 +217,7 @@ export default function VocabApp({ uid }) {
       example: data.example || "",
       exampleTranslation: data.exampleTranslation || "",
       note: data.note || "",
+      youglishUrl: data.youglishUrl || "",
       box: 1,
       reviewCount: 0,
       correctCount: 0,
@@ -703,7 +704,7 @@ function DeckDetail({ deck, cards, onBack, addCard, updateCard, deleteCard }) {
       updateCard(editingId, form);
       setEditingId(null);
     } else {
-      addCard(deck.id, form);
+      addCard(deck.id, { ...form, youglishUrl });
     }
     setForm(emptyForm);
     setShowAddForm(false);
@@ -1030,6 +1031,16 @@ function CardDetails({ card }) {
         <button onClick={() => speak(card.word, "fr-FR")} style={{ background: "none", border: "none", color: "#6b5f45", cursor: "pointer", marginLeft: "auto" }}>
           <Volume2 size={16} />
         </button>
+        {card.youglishUrl && (
+          <a
+            className="link-btn"
+            href={card.youglishUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink size={12} /> 查 YouGlish
+          </a>
+        )}
       </div>
       <div style={{ fontSize: "1rem", marginBottom: 8 }}>{card.meaning || "（尚未填寫英文翻譯）"}</div>
       {card.pos === "v." && card.conjugation && (
