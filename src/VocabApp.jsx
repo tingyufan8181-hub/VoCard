@@ -46,13 +46,29 @@ function todayStr(d = new Date()) {
   return d.toISOString().slice(0, 10);
 }
 function speak(text, lang) {
-  if (!text) return;
+  if (!text || !("speechSynthesis" in window)) return;
+
   try {
-    window.speechSynthesis.cancel();
+    const synth = window.speechSynthesis;
+    synth.cancel();
+
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
-    window.speechSynthesis.speak(u);
-  } catch (e) {}
+
+    const voices = synth.getVoices();
+
+    const voice =
+      voices.find((v) => v.lang.toLowerCase() === lang.toLowerCase()) ||
+      voices.find((v) => v.lang.toLowerCase().startsWith(lang.split("-")[0].toLowerCase()));
+
+    if (voice) {
+      u.voice = voice;
+    }
+
+    synth.speak(u);
+  } catch (e) {
+    console.error("Speech error:", e);
+  }
 }
 
 function getEffectiveBox(card, now) {
@@ -126,6 +142,7 @@ export default function VocabApp({ uid }) {
   const [lastCorrect, setLastCorrect] = useState(null);
   const [typedAnswer, setTypedAnswer] = useState("");
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 });
+  const isInAppBrowser = /Instagram|FBAN|FBAV|Line|LINE|wv|; wv\)/i.test(navigator.userAgent);
 
   useEffect(() => {
     (async () => {
@@ -322,6 +339,19 @@ export default function VocabApp({ uid }) {
 
   return (
     <div style={{ minHeight: "100vh", background: PAGE_BG, color: INK, fontFamily: fontBody, paddingBottom: "2rem" }}>
+      {isInAppBrowser && (
+        <div style={{
+          background: "#fff8e7",
+          borderBottom: `1px solid ${MUTED}`,
+          padding: "10px 14px",
+          textAlign: "center",
+          fontSize: "0.78rem",
+          lineHeight: 1.6,
+          color: "#5f543f"
+        }}>
+          🔊 如果點擊發音沒有聲音，請點右上角「⋯」，選擇「在瀏覽器中開啟」後再使用。
+        </div>
+      )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; }
